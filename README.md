@@ -1,10 +1,19 @@
-# Marula
+<div align="center">
 
-A static blog generator using the magic of pandoc and bash. It's still very alpha, use at your own risk.
+<img src="lemon.png" alt="A very cute lemon" style="width:20%"></img>
+
+# Lemon Shell
+<small>A static blog generator using the magic of pandoc and bash.</small>
+
+</div>
+
+
+
+
 
 # Installation
 
-Create a folder and clone the repository. Run the script with `bash ./marula.sh`, or change the permissions to execute without bash : `chmod +x ./marula.sh`. After executing, the script will create an `index.md` in the root folder and an `example-post.md` in the `_drafts` folder.
+Create a folder and clone the repository. Run the script with `bash ./lemonshell.sh`, or change the permissions to execute without bash : `chmod +x ./lemonshell.sh`. After executing, the script will create an `index.md` in the root folder and an `example-post.md` in the `_drafts` folder.
 
 ## Dependencies
 - [Pandoc](https://pandoc.org/installing.html)
@@ -17,3 +26,5 @@ Create a folder and clone the repository. Run the script with `bash ./marula.sh`
 - Make color schemes to CSS.
 - Auto Dark Mode.
 - Command line for starter, posts and pages.
+
+Image logo by [Freepik](https://www.flaticon.com/authors/freepik)

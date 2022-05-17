@@ -31,12 +31,10 @@ function transformDrafts() {
     printf "## Blog\n\n" >> ../links.md
     for i in *.md; do
         # Parsing the posts links to a separate file to be joined to index.
-        getTitle=$(grep 'title:' $i)
-        sed -i "s|^date:.*|date: $(date '+%F %R')|g" $i
-        getDate=$(grep 'date:' $i)
-        postTitle=${getTitle/title: /}
-        postDate=${getDate/date: /}
-        printf " - [%s - %s](${i%.*}.html)\n" "$postDate" "$postTitle"  >> ../links.md
+        # sed -i "s|^date:.*|date: $(date '+%F %R')|g" $i
+        draftDate=$(grep -i 'date:' $i)
+        draftTitle=$(grep -i 'title:' $i)
+        printf " - [ %s - %s ](${i%.*}.html)\n" "${draftDate/date: }" "${draftTitle/title: }"  >> ../links.md
         pandoc --lua-filter=../scripts/filter.lua -s --template=../templates/$POST_TEMPLATE "$i" -o "${i%.*}.html"
         mv -f "${i%.*}".html ../${PUBLIC_FOLDER}
         echo -e "$PASSED File $i transformed and moved to posts/."
@@ -88,8 +86,8 @@ function makeRSS() {
         <updated>$(date -R)</updated>" >>rss.xml
     cd posts/ || echo "Eek! No files found." exit
     for files in *.html; do
-        postTitle=$(grep '<title>' ${files})
-        postDescription=$(grep '<description>' ${files})
+        postTitle=$(grep -i '<title>' ${files})
+        postDescription=$(grep -i '<description>' ${files})
         echo "    <item>
       $postTitle
       <link>/posts/lorem-ipsum.md</link>

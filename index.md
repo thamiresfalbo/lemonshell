@@ -1,5 +1,5 @@
 ---
-title: Home
+title: Example Blog
 date: 16-05-2022
 ---
 

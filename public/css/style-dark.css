@@ -19,13 +19,11 @@
 
 body {
   color:var(--base00);
-  background-color:var(--base3);
+  background-color:var(--base03);
   font-family: sans-serif;
   margin: auto;
   max-width: 50%;
-  font-size:larger;
 }
-
 a {
   text-decoration: none;
   color:var(--blue);
@@ -37,4 +35,5 @@ h1,h2,h3,h4,h5,h6 {
 
 ul {
   list-style-type: "❖ ";
+  list-style-position: inside;
 }
