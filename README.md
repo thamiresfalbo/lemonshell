@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="lemon.png" alt="A very cute lemon" style="width:20%"></img>
+<img src="lemon.png" alt="A very cute lemon" width:"500" height:"350">
 
 # Lemon Shell
 <small>A static blog generator using the magic of pandoc and bash.</small>
