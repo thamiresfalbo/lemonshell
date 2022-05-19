@@ -23,8 +23,26 @@ Create a folder and clone the repository. Run the script with `bash ./lemonshell
 # TODO
 - Offline usage.
 - Check if pandoc and gsed exists in OS.
-- Make color schemes to CSS.
-- Auto Dark Mode.
+- ~~Make color schemes to CSS.~~
+- ~~Auto Dark Mode.~~
 - Command line for starter, posts and pages.
+
+# Folder Structure
+
+```
++ Root
+- public
+- css
+- img
+- js
+- src
+    - posts
+    - _includes
+        - templates
+            - partials 
+    
+
+
+```
 
 Image logo by [Freepik](https://www.flaticon.com/authors/freepik)

@@ -1,43 +1,49 @@
 #!/bin/bash
-# Marula Blog
+# LemonShell Blog
 
 # MARK Configurations
 function CONSTANTS() {
-    SITE_URL=""
-    TITLE=""
-    DESCRIPTION=""
-    POST_TEMPLATE='post.html'
-    TEMPLATE='template.html'
-    DRAFTS_FOLDER='_drafts/'
-    PUBLIC_FOLDER='public/'
-    POSTS_FOLDER="posts/"
+    SITE_URL="https://example.org"
+    TITLE="Handsome Gorilla"
+    DESCRIPTION="The tales of a gorilla who is too cool to stand still!"
+    # Folders
+    INPUT_FOLDER='src/'
+    OUTPUT_FOLDER='public/'
+    POSTS_FOLDER='posts/'
+    # Templates
+    BASE_TEMPLATE='_includes/templates/base.html'
+    POST_TEMPLATE='_includes/templates/post.html'
     RSS=false
     PASSED='\033[1;32m[X]'
     WARNING='\033[1;31m[!]'
-    CSS='style.css'
+    CSS='holiday.css'
 }
 
 # TODO Complete the makePost
 function makePost() {
     name=$2
     date=$(date '+%F %R')
-    printf "---\ntitle: A good thing\ndate: %s \n---" "$date" >> a-good-thing.md
+    printf "---\ntitle: A good thing\ndate: %s \n---" "$date" >>a-good-thing.md
 }
 
 # MARK transformDrafts
 function transformDrafts() {
-    echo -e "$PASSED Moving to drafts..."
-    if [[ -f ../links.md ]]; then :>../links.md; fi # Cleans the links file so it doesn't mess it up.
-    printf "## Blog\n\n" >> ../links.md
-    for i in *.md; do
-        # Parsing the posts links to a separate file to be joined to index.
-        # sed -i "s|^date:.*|date: $(date '+%F %R')|g" $i
-        draftDate=$(grep -i 'date:' $i)
-        draftTitle=$(grep -i 'title:' $i)
-        printf " - [ %s - %s ](${i%.*}.html)\n" "${draftDate/date: }" "${draftTitle/title: }"  >> ../links.md
-        pandoc --lua-filter=../scripts/filter.lua -s --template=../templates/$POST_TEMPLATE "$i" -o "${i%.*}.html"
-        mv -f "${i%.*}".html ../${PUBLIC_FOLDER}
-        echo -e "$PASSED File $i transformed and moved to posts/."
+    if [[ -f ../links.md ]]; then : >../links.md; fi # Check and cleans the file to add the post list.
+    printf "## Blog\n\n" >>../links.md
+    # Inverts the post list.
+    function revert() { array=("${BASH_ARGV[@]}"); }
+    for i in *.md; do array+=("$i"); done
+    shopt -s extdebug
+    revert "${array[@]}"
+    shopt -u extdebug
+
+    for itens in "${array[@]}"; do
+        draftDate=$(grep -i 'date:' $itens)
+        draftTitle=$(grep -i 'title:' $itens)
+        printf " - %s   [ %s ]($POSTS_FOLDER${itens%.*}.html)\n" "${draftDate/date: /}" "${draftTitle/title: /}" >>../links.md
+        pandoc -s --template=../$POST_TEMPLATE "$itens" -o "${itens%.*}.html"
+        mv -f "${itens%.*}".html ../../${OUTPUT_FOLDER}${POSTS_FOLDER}
+        echo -e "$PASSED File $itens transformed and moved to posts/."
     done
 }
 
@@ -45,7 +51,8 @@ function transformDrafts() {
 function checkMarkdown() {
     count=$(find . -maxdepth 1 -name '*.md' 2>/dev/null | wc -l)
     if [ $count != 0 ]; then
-    echo -e "$PASSED Markdown files exists."; else
+        echo -e "$PASSED Markdown files exists."
+    else
         echo -e "$WARNING Eeek! No files found!"
         exit
     fi
@@ -56,9 +63,9 @@ function transformFile() {
     indexFile="index.md"
     if [[ -f "$indexFile" ]]; then
         echo -e "$PASSED Transforming the index..."
-        pandoc --lua-filter=scripts/filter.lua -s --template=templates/$TEMPLATE -i "$indexFile" "links.md" -o "${indexFile%.*}.html"
-        sed -n "s|${DRAFTS_FOLDER}|$POSTS_FOLDER|g" "${indexFile%.*}.html" # Updating links so that it doesn't screw up
-        mv ${indexFile%.*}.html $PUBLIC_FOLDER
+        pandoc -s --template=$BASE_TEMPLATE -i "nav.md" "$indexFile" "links.md" -o "${indexFile%.*}.html"
+        # --lua-filter=../scripts/filter.lua  // sed -n "s|${POSTS_FOLDER}|$POSTS_FOLDER|g" "${indexFile%.*}.html" # Updating links so that it doesn't screw up
+        mv ${indexFile%.*}.html ../$OUTPUT_FOLDER
     else
         echo -e "$WARNING Eek! No index.md found!"
     fi
@@ -66,9 +73,13 @@ function transformFile() {
 
 # MARK checkFolder
 function checkFolder() {
-    if [[ ! -d $(pwd)/$DRAFTS_FOLDER ]]; then
-        echo -e "$PASSED Directory drafts/ does not exist. Creating it..."
-        mkdir _drafts && echo "Please create a post and rerun the command." && exit
+    if [[ ! -d $(pwd)/${INPUT_FOLDER}${POSTS_FOLDER} ]]; then
+        echo -e "$PASSED Directory posts/ does not exist. Creating it..."
+        mkdir $INPUT_FOLDER$POSTS_FOLDER
+    fi
+    if [[ ! -d $(pwd)/$OUTPUT_FOLDER ]]; then
+        echo -e "$PASSED Directory public/ and public/posts does not exist. Creating it..."
+        mkdir $OUTPUT_FOLDER && mkdir $OUTPUT_FOLDER$POSTS_FOLDER
     fi
 }
 
@@ -98,15 +109,23 @@ function makeRSS() {
     echo -e "RSS Feed Completed \033[0m"
 }
 
+function copyFolders() {
+    echo -e "Moving folders..."
+    cp -R css $OUTPUT_FOLDER
+    cp -R js $OUTPUT_FOLDER
+    cp -R img $OUTPUT_FOLDER
+}
+
 function buildSite() {
+    rm -rf $OUTPUT_FOLDER
     checkFolder
-    cd $DRAFTS_FOLDER || exit
+    cd ${INPUT_FOLDER}${POSTS_FOLDER} || exit
     checkMarkdown
     transformDrafts
-    cd ../
-    transformFile
+    cd ../ && transformFile
+    cd ../ && copyFolders
     if $RSS; then makeRSS; fi
-    echo -e "$PASSED Done."
+    echo -e "$PASSED Done." && exit
 }
 
 function main() {
